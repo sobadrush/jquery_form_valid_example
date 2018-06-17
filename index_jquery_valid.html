@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        
+        <!-- 載入jquery驗證套件 -->
+        <script src="/assest/dist/jquery.validate.min.js"></script>
+        
+        <!-- 載入繁體中文的驗證錯誤訊息 -->
+        <script src="/assest/dist/localization/messages_zh_TW.js"></script>
+
+        <!-- 載入日文的驗證錯誤訊息 -->
+        <!-- <script src="/assest/dist/localization/messages_ja.min.js"></script> -->
+
+        <style>
+            /* jquery-valid-Plugin 預設吃叫 error 的 css */
+            .error {
+                color:red;
+            }
+        </style>
+    </head>
+    <body class="container">
+
+        <div class="container">
+            <div class="row">
+                <div class="col-1" style="color:white;background:blue;height:0.5cm;">
+                    col-1
+                </div>
+                <div class="col-10" style="color:white;background:rgb(174, 174, 214);height:0.5cm;">
+                    col-6
+                </div>
+                <div class="col-1" style="color:white;background:blue;height:0.5cm;">
+                    col-1
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-1">
+                    
+                </div>
+                <div class="col-10">
+                    <br/>
+                    <form id="myForm" method="GET" action="javascript:void(0)" style="border: 1px solid red;">
+                        <fieldset style="padding: 15px;">
+                          <legend>輸入姓名、email、備註</legend>
+                          <p>
+                            <label for="cname">姓名 (必填, 最少2位)</label>
+                            <input id="cname" name="name" minlength="2" type="text" required><!-- 須搭配 required 屬性 -->
+                          </p>
+                          <p>
+                            <label for="cemail">E-Mail (必填)</label>
+                            <input id="cemail" type="email" name="myEmail" required><!-- 須搭配 required 屬性 -->
+                          </p>
+                          <p>
+                            <label for="curl">Facebook (選填)</label>
+                            <input id="curl" type="url" name="url" class="fuck" required>
+                          </p>
+                          <p>
+                            <label for="ccomment">備註 (必填)</label>
+                            <textarea id="ccomment" name="comment" required></textarea><!-- 須搭配 required 屬性 -->
+                          </p>
+                          <p>
+                            <label for="cAddress">地址 (必填)</label>
+                            <textarea id="cAddress" name="user.address"></textarea><!-- 使用 rule 屬性定義驗證規則 -->
+                          </p>
+                          <p>
+                            <button id="submitBtn" type="submit" class="submit" onclick="javascript:void(0);">Submit</button>
+                            <button id="resetBtn" onclick="javascript:void(0);">移除驗證狀態</button>
+                            <button id="cleanBtn" onclick="javascript:void(0);">清空輸入值</button>
+                          </p>
+                    </fieldset>
+                </form>
+                </div>
+                <div class="col-1">
+                    
+                </div>
+            </div>
+        </div>
+
+        <p></p>
+        <h3 style="background:orange;">參考資料：http://www.runoob.com/jquery/jquery-plugin-validate.html</h3>
+        <h3 style="background:rgb(202, 174, 123);">參考資料：https://stackoverflow.com/questions/14801381/jquery-validate-plugin-with-alert-popup-still-appears-the-user-cant-choose</h3>
+        <h3 style="background:rgb(127, 226, 124);">參考資料：https://forum.jquery.com/topic/jquery-validation-how-to-show-errors-on-alert</h3>
+        <h3 style="background:rgb(5, 148, 0);">參考資料：http://mangege.iteye.com/blog/1001984</h3>
+
+        <script>
+            $(function(){
+                let myForm = $("#myForm");
+                let validObj = myForm.validate({
+                    debug: true, // 如果这个参数为true，表单不会提交，只进行检查，调试时十分方便
+                    ignore:".fuck" , // 忽略class叫作 fuck 的欄位，不進行驗證
+                    // onkeyup: true, // 在 keyup 时验证
+                    // onclick: true, // 在点击复选框和单选按钮时验证。
+                    focusInvalid: true, // 提交表单后，未通过验证的表单（第一个或提交之前获得焦点的未通过验证的表单）会获得焦点。
+                    showErrors: function(errorMap, errorList) { // 可以显示总共有多少个未通过验证的元素
+                        // console.log('@@ this ' , this);
+                        // console.log('@@ ' , this.canAlert);
+                        if(this.canAlert == true){
+
+                            // console.log(">>> errorMap", errorMap);
+                            // console.log(">>> errorList", errorList);
+
+                            // 【組出要alert的訊息】
+                            let errMsgTotal = "";
+                            for (const key in errorMap) {
+                                let fieldNameChinese = fieldNameMapping(key); // 將 errorMap 的 key ，也就是 input 的 name 屬性，mapping成中文
+                                let fieldErrMsg = errorMap[key];
+                                errMsgTotal += fieldNameChinese + " ， " + fieldErrMsg + '\n';
+                            }
+                            
+                            if(errorList.length > 0){
+                                alert(errMsgTotal);
+                            }
+
+                            // let err = [];  
+                            // $.each(errorList, function(i, v){
+                            //     err.push(v.message);
+                            // });  
+
+                            // console.info( '>>> err' , err );
+
+                            // if(err.length > 0) {
+                            //     alert(err.join("\n"));    
+                            // }
+                            // this.defaultShowErrors(); // 若加上此行，會執行預設的顯示錯誤方式(紅字在textbox旁邊)
+
+                            // === 將flag設成false ===
+                            this.canAlert = false;
+                        }
+                    },
+                    onfocusout: false, // 設false，失焦不驗證， 才不會填完一個欄位就驗證一次
+                    
+                    // 【驗證欄位&規則】
+                    rules: {  
+                        /*這邊的key對應 form 裡面標籤的 name 屬性*/
+                        'user.address':{
+                            required : true,
+                            minlength: 5,
+                            maxlength: 7
+                        }
+                    },
+
+                    // 【有錯誤時要show的messages】
+                    messages: {
+                        /*這邊的key對應 form 裡面標籤的 name 屬性*/
+                        'user.address' : {
+                            required : "就叫你輸入地址了！",
+                            minlength: "就跟你說長度要大於5個字了！",
+                            maxlength: "就跟你說長度要不能太長了(7個字)！"
+                        }
+                    },
+
+                    submitHandler: function( _formTag ){
+                        // ※※※進入submitHandler時，表示驗證已經通過了※※※
+                        alert("提交事件! submitHandler ");
+                        console.log('>>> _formTag >>> ' , _formTag);
+                    }
+                });
+
+                // 【提交按鈕】
+                $("#submitBtn").on('click', myForm , function(e){
+                    console.log('myForm.valid()' , myForm.valid());
+                    console.log('validObj.form()' , validObj.form());
+                    
+                     // === 將flag設成true ===
+                    validObj.canAlert = true;
+                });
+
+                // 【移除驗證狀態按鈕】 
+                $("#resetBtn").on('click', myForm , function(e){
+                    e.preventDefault();// 因為這個button放在<form>裡面，必須避免預設的submit事件
+                    $(".error").val(''); 
+                    validObj.resetForm();
+                });
+
+                // 【清空輸入值的按鈕】 
+                $("#cleanBtn").on('click', myForm , function(e){
+                    e.preventDefault();// 因為這個button放在<form>裡面，必須避免預設的submit事件
+                    myForm.find('input').val("");
+                    myForm.find('textarea').val("");
+                });
+
+            });
+        </script>
+
+        <script>
+
+            // 【傳入標籤的name屬性名，mapping出此欄位的中文】
+            function fieldNameMapping( _tagNameAttr ){
+                let inputTags = $("input");
+                let textareaTags = $("textarea");
+
+                // $.extend(inputTags, textareaTags); // 將 textareaTags 陣列 合併到 inputTags陣列中
+                $.merge(inputTags, textareaTags); // 將 textareaTags 陣列 合併到 inputTags陣列中
+
+                let result = "";
+                $.each( inputTags , function(idx, tag){
+                    let nameAttrStr = $(tag).prop('name');
+                    let labelTag = $(tag).siblings('label').eq(0);
+                    let labelTitleStr = labelTag.text();
+                    let spacePos = labelTitleStr.indexOf(" ");
+                    let labelTitle = labelTitleStr.substring(0, spacePos);
+                    if (_tagNameAttr == nameAttrStr) {
+                        result = labelTitle;
+                        return false;
+                    }
+                });
+                return result;
+            }
+        
+        </script>
+
+    </body>
+</html>
